@@ -1,0 +1,26 @@
+[project]
+name = "raytracer"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "mypy>=1.18.1",
+    "numpy>=2.3.3",
+    "pyright>=1.1.405",
+]
+
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+namespace_packages = true
+packages = ["raytracer"]
+
+
+[tool.pyright]
+include = ["raytracer"]
+reportMissingImports = "error"
+reportMissingTypeStubs = true
+pythonVersion = "3.12"
+pythonPlatform = "Linux"
