@@ -5,7 +5,7 @@ from typing import IO, Any
 from raytracer import Interval, Vec3
 
 
-@dataclass(frozen=True, eq=False, slots=True)
+@dataclass(frozen=False, eq=False, slots=True)
 class Color:
     r: float
     g: float
@@ -14,8 +14,8 @@ class Color:
     def __mul__(self, other: Any) -> Color:
         if isinstance(other, (float, int)):
             return Color(self.r * other,
-                        self.g * other,
-                        self.b * other)
+                         self.g * other,
+                         self.b * other)
         return NotImplemented
 
     def __rmul__(self, other: Any) -> Color:

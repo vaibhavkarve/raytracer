@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from raytracer import Vec3, Point3
 
 
-@dataclass(frozen=True, eq=False, slots=True)
+@dataclass(frozen=False, eq=False, slots=True)
 class Ray:
     origin: Point3
     direction: Vec3

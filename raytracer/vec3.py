@@ -2,12 +2,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING, cast
 import math
+import numpy as np
+import numpy.typing as npt
 
 if TYPE_CHECKING:
     from raytracer.color import Color
 
 
-@dataclass(frozen=True, eq=False, slots=True)
+@dataclass(frozen=False, eq=False, slots=True)
 class Vec3:
     x: float
     y: float
@@ -65,5 +67,8 @@ class Vec3:
 
     def unit_vector(self) -> Vec3:
         return self / self.length()
+
+    def to_array(self) -> npt.NDArray[np.float64]:
+        return np.array([self.x, self.y, self.z])
 
 Point3 = Vec3  # Class Alias

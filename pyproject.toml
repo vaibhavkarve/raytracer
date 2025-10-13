@@ -5,8 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "line-profiler>=5.0.0",
     "mypy>=1.18.1",
     "numpy>=2.3.3",
+    "pdbp>=1.7.1",
     "pyright>=1.1.405",
 ]
 
@@ -24,3 +26,4 @@ reportMissingImports = "error"
 reportMissingTypeStubs = true
 pythonVersion = "3.12"
 pythonPlatform = "Linux"
+venvPath = ".venv"
