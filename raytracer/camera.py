@@ -2,6 +2,10 @@ import sys
 from random import random
 from raytracer import (Point3, Vec3, HittableList, Color,
                        Ray, Hittable, HitRecord, Interval)
+from line_profiler import profile
+import numpy as np
+import numpy.typing as npt
+import itertools as it
 
 
 class Camera:
@@ -53,8 +57,8 @@ class Camera:
             + 0.5 * (self.pixel_delta_u + self.pixel_delta_v)
         )
 
-
-    def render(self, world: HittableList) -> None:
+    @profile  # type: ignore[misc]
+    def render(self, world: HittableList, rng: np.random.Generator) -> None:
         print("P3")  # PPM file is in ascii format.
         print(self.image_width, self.image_height)
         print(255)  # Max pixel color value.
@@ -64,8 +68,9 @@ class Camera:
                   file=sys.stderr, end="", flush=True)
             for i in range(self.image_width):
                 pixel_color: Color = Color(0, 0, 0)  # Black.
-                for _ in range(self.samples_per_pixel):
-                    ray: Ray = self.get_ray(i, j)
+                ray_origins, ray_directions = self.get_rays(rng, i, j)
+                for origin, direction in zip(ray_origins, ray_directions):
+                    ray: Ray = Ray(origin, direction)
                     pixel_color += self.ray_color(ray, world)
                 (self.pixel_samples_scale * pixel_color).write()
 
@@ -73,7 +78,8 @@ class Camera:
 
     @staticmethod
     def ray_color(ray: Ray, world: Hittable) -> Color:
-        record: None | HitRecord = world.hit(ray, Interval(0, float("inf")))
+        record: None | HitRecord = world.hit(
+            ray, Interval(0, float("inf")))
         if record is not None:
             # We hit something.
             return 0.5 * (record.normal + Color(1, 1, 1))
@@ -86,18 +92,22 @@ class Camera:
             + a * Color(0.5, 0.7, 1)
         )
 
-    def get_ray(self, i: int, j: int) -> Ray:
-        """Construct a camera ray originating from the origin and directed
-        at randomly sampled point around the pixel location i, j."""
-        offset: Vec3 = self.sample_square()
-        pixel_sample: Vec3 = (
-            self.pixel00_loc
-            + (i + offset.x) * self.pixel_delta_u
-            + (j + offset.y) * self.pixel_delta_v
-        )
-        ray_origin: Point3 = self.center
-        ray_direction: Vec3 = pixel_sample - ray_origin
-        return Ray(ray_origin, ray_direction)
+    def get_rays(self, rng: np.random.Generator, i: int, j: int) \
+            -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
+        """Construct all camera rays originating from the origin and directed
+        at randomly sampled points around the pixel location i, j."""
+        offsets: npt.NDArray[np.float64] \
+            = rng.uniform(low=-0.5, high=0.5, size=self.samples_per_pixel * 2).reshape(self.samples_per_pixel, 2)
+
+        pixel_sample_xs: npt.NDArray[np.float64] = self.pixel00_loc.x + (i + offsets[:, 0]) * self.pixel_delta_u.x
+        pixel_sample_ys: npt.NDArray[np.float64] = self.pixel00_loc.y + (j + offsets[:, 1]) * self.pixel_delta_v.y
+        pixel_sample_zs: npt.NDArray[np.float64] = np.repeat(self.pixel00_loc.z, self.samples_per_pixel)
+        pixel_samples: npt.NDArray[Vec3] = np.array(list(it.starmap(Vec3, zip(pixel_sample_xs, pixel_sample_ys, pixel_sample_zs))))
+
+        ray_origins: npt.NDArray[Vec3] = np.repeat(self.center, self.samples_per_pixel)
+        ray_directions: npt.NDArray[Vec3] = pixel_samples - ray_origins
+
+        return ray_origins, ray_directions
 
     @staticmethod
     def sample_square() -> Vec3:

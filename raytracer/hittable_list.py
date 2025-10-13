@@ -3,7 +3,7 @@ from typing import override
 from raytracer import Hittable, Interval, HitRecord, Ray
 
 
-@dataclass(frozen=True, eq=False, slots=True)
+@dataclass(frozen=False, eq=False, slots=True)
 class HittableList(Hittable):
     objects: list[Hittable]
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True, eq=False, slots=True)
+@dataclass(frozen=False, eq=False, slots=True)
 class Interval:
     min_: float
     max_: float

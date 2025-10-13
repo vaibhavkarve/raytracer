@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from raytracer import Vec3, Point3, Ray, isclose, Interval
 
 
-@dataclass(frozen=True, eq=False, slots=True)
+@dataclass(frozen=False, eq=False, slots=True)
 class HitRecord:
     point: Point3
     normal: Vec3
